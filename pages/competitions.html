@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>FootballHub | Competitions</title>
+	<link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+	<header>
+		<nav aria-label="Navigation principale">
+			<a href="../index.html">FootballHub</a>
+			<ul>
+				<li><a href="../index.html">Accueil</a></li>
+				<li><a href="matches.html">Matchs</a></li>
+				<li><a href="competitions.html">Competitions</a></li>
+				<li><a href="teams.html">Equipes</a></li>
+			</ul>
+		</nav>
+	</header>
+
+	<main>
+		<section aria-labelledby="competitions-page-title">
+			<h1 id="competitions-page-title">Competitions</h1>
+			<p>Consultez les competitions disponibles et leurs informations.</p>
+		</section>
+
+		<section aria-labelledby="competitions-list-title">
+			<h2 id="competitions-list-title">Liste des competitions</h2>
+			<div id="competitions-loading"></div>
+			<div id="competitions-error"></div>
+			<div id="competitions-list"></div>
+		</section>
+	</main>
+
+	<footer>
+		<p>&copy; FootballHub 2026 - <a href="https://github.com/omartech00">OmarTech</a></p>
+	</footer>
+
+	<script src="../js/api.js"></script>
+	<script src="../js/ui.js"></script>
+	<script src="../js/main.js"></script>
+</body>
+</html>

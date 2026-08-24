@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>FootballHub | Detail Match</title>
+	<link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+	<header>
+		<nav aria-label="Navigation principale">
+			<a href="../index.html">FootballHub</a>
+			<ul>
+				<li><a href="../index.html">Accueil</a></li>
+				<li><a href="matches.html">Matchs</a></li>
+				<li><a href="competitions.html">Competitions</a></li>
+				<li><a href="teams.html">Equipes</a></li>
+			</ul>
+		</nav>
+	</header>
+
+	<main>
+		<section aria-labelledby="match-detail-title">
+			<h1 id="match-detail-title">Detail du match</h1>
+			<p>Resume, score et statut du match selectionne.</p>
+			<div id="match-summary"></div>
+		</section>
+
+		<section aria-labelledby="events-title">
+			<h2 id="events-title">Evenements</h2>
+			<div id="match-events-loading"></div>
+			<div id="match-events-error"></div>
+			<div id="match-events-list"></div>
+		</section>
+
+		<section aria-labelledby="stats-title">
+			<h2 id="stats-title">Statistiques</h2>
+			<div id="match-stats-loading"></div>
+			<div id="match-stats-error"></div>
+			<div id="match-stats"></div>
+		</section>
+	</main>
+
+	<footer>
+		<p>&copy; FootballHub 2026 - <a href="https://github.com/omartech00">OmarTech</a></p>
+	</footer>
+
+	<script src="../js/api.js"></script>
+	<script src="../js/ui.js"></script>
+	<script src="../js/main.js"></script>
+</body>
+</html>
