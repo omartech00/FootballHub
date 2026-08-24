@@ -27,14 +27,27 @@
 
 		<section aria-labelledby="matches-title">
 			<h2 id="matches-title">Matchs du jour</h2>
+			<div id="home-matches-loading" class="state-box state-loading">Chargement des matchs du jour...</div>
+			<div id="home-matches-error" class="state-box state-error hidden"></div>
+			<div id="home-matches-empty" class="state-box state-empty hidden">Aucun match disponible pour le moment.</div>
+			<div id="home-matches-list"></div>
 		</section>
 
 		<section aria-labelledby="competitions-title">
 			<h2 id="competitions-title">Compétitions en vedette</h2>
+			<div id="home-competitions-loading" class="state-box state-loading">Chargement des compétitions...</div>
+			<div id="home-competitions-error" class="state-box state-error hidden"></div>
+			<div id="home-competitions-empty" class="state-box state-empty hidden">Aucune compétition à afficher pour le moment.</div>
+			<div id="home-competitions-list"></div>
 		</section>
 
 		<section aria-labelledby="teams-title">
 			<h2 id="teams-title">Recherche d’équipes</h2>
+			<div id="home-teams-search"></div>
+			<div id="home-teams-loading" class="state-box state-loading hidden">Chargement des équipes...</div>
+			<div id="home-teams-error" class="state-box state-error hidden"></div>
+			<div id="home-teams-empty" class="state-box state-empty hidden">Aucune équipe trouvée pour le moment.</div>
+			<div id="home-teams-list"></div>
 		</section>
 	</main>
 
