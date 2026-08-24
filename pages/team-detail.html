@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>FootballHub | Detail Equipe</title>
+	<link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+	<header>
+		<nav aria-label="Navigation principale">
+			<a href="../index.html">FootballHub</a>
+			<ul>
+				<li><a href="../index.html">Accueil</a></li>
+				<li><a href="matches.html">Matchs</a></li>
+				<li><a href="competitions.html">Competitions</a></li>
+				<li><a href="teams.html">Equipes</a></li>
+			</ul>
+		</nav>
+	</header>
+
+	<main>
+		<section aria-labelledby="team-detail-title">
+			<h1 id="team-detail-title">Detail equipe</h1>
+			<p>Informations generales de l'equipe selectionnee.</p>
+			<div id="team-summary"></div>
+		</section>
+
+		<section aria-labelledby="recent-matches-title">
+			<h2 id="recent-matches-title">Matchs recents</h2>
+			<div id="team-recent-loading"></div>
+			<div id="team-recent-error"></div>
+			<div id="team-recent-list"></div>
+		</section>
+
+		<section aria-labelledby="upcoming-matches-title">
+			<h2 id="upcoming-matches-title">Prochains matchs</h2>
+			<div id="team-upcoming-loading"></div>
+			<div id="team-upcoming-error"></div>
+			<div id="team-upcoming-list"></div>
+		</section>
+	</main>
+
+	<footer>
+		<p>&copy; FootballHub 2026 - <a href="https://github.com/omartech00">OmarTech</a></p>
+	</footer>
+
+	<script src="../js/api.js"></script>
+	<script src="../js/ui.js"></script>
+	<script src="../js/main.js"></script>
+</body>
+</html>
