@@ -5,6 +5,14 @@
 (function () {
 	"use strict";
 
+	function debounce(fn, wait) {
+		let t;
+		return function (...args) {
+			clearTimeout(t);
+			t = setTimeout(() => fn.apply(this, args), wait);
+		};
+	}
+
 	function getCurrentPage() {
 		const path = window.location.pathname;
 		return path.substring(path.lastIndexOf("/") + 1) || "index.html";
@@ -82,21 +90,75 @@
 	}
 
 	function initCompetitionDetailPage() {
-		// placeholder: load standings for a competition id
-		const compId = 101; // example
+		const params = new URLSearchParams(window.location.search);
+		const id = params.get('id');
+		if (!id) {
+			FootballHubUI.setState('standings-error','Identifiant de compétition manquant', 'error');
+			return;
+		}
+
+		const summaryId = 'competition-summary';
 		FootballHubUI.setState('standings-loading','Chargement du classement...', 'loading');
-		FootballHubAPI.getCompetitionStandings(compId).then(rows => {
+		Promise.all([
+			FootballHubAPI.getCompetitions(),
+			FootballHubAPI.getCompetitionStandings(id)
+		]).then(([comps, rows]) => {
 			FootballHubUI.clearState('standings-loading');
-			FootballHubUI.renderStandings('standings-table', rows);
+			const comp = (comps || []).find(c => String(c.id) === String(id));
+			if (!comp) {
+				FootballHubUI.setState('standings-error','Compétition non trouvée', 'error');
+				return;
+			}
+			FootballHubUI.renderCompetitionDetail(summaryId, comp);
+			FootballHubUI.renderStandings('standings-table', rows || []);
+			// load competition matches
+			FootballHubUI.setState('competition-matches-loading','Chargement des matchs de la compétition...', 'loading');
+			FootballHubAPI.getCompetitionMatches(id).then(matches => {
+				FootballHubUI.clearState('competition-matches-loading');
+				FootballHubUI.renderMatches('competition-matches-list', matches || []);
+			}).catch(() => FootballHubUI.setState('competition-matches-error','Erreur chargement matchs', 'error'));
 		}).catch(() => FootballHubUI.setState('standings-error','Erreur classement', 'error'));
 	}
 
 	function initTeamsPage() {
+		const searchContainerId = 'teams-search-controls';
+		const listId = 'teams-list';
+
 		FootballHubUI.setState('teams-loading','Chargement des equipes...', 'loading');
 		FootballHubAPI.searchTeams('').then(data => {
 			FootballHubUI.clearState('teams-loading');
-			FootballHubUI.renderTeams('teams-list', data);
+			FootballHubUI.renderTeams(listId, data);
 		}).catch(() => FootballHubUI.setState('teams-error','Erreur equipes', 'error'));
+
+		// render search input
+		const container = document.getElementById(searchContainerId);
+		if (!container) return;
+		container.innerHTML = '';
+		const form = document.createElement('div');
+		form.className = 'flex gap-2 items-center';
+		form.innerHTML = `
+			<input id="teams-search-input" aria-label="Rechercher une équipe" placeholder="Rechercher une équipe" class="px-3 py-2 rounded bg-gray-800 text-white flex-1" />
+			<button id="teams-search-btn" class="px-3 py-2 bg-green-500 text-black rounded font-semibold">Rechercher</button>
+		`;
+		container.appendChild(form);
+
+		const input = document.getElementById('teams-search-input');
+		const btn = document.getElementById('teams-search-btn');
+
+		const doSearch = async (q) => {
+			FootballHubUI.setState('teams-loading','Recherche en cours...', 'loading');
+			try {
+				const results = await FootballHubAPI.searchTeams(q);
+				FootballHubUI.clearState('teams-loading');
+				FootballHubUI.renderTeams(listId, results);
+			} catch (e) {
+				FootballHubUI.setState('teams-error','Erreur recherche', 'error');
+			}
+		};
+
+		const debounced = debounce((ev) => doSearch(ev.target.value), 300);
+		input.addEventListener('input', debounced);
+		btn.addEventListener('click', () => doSearch(input.value));
 	}
 
 	function initTeamDetailPage() {

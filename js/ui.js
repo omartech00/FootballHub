@@ -119,12 +119,42 @@
 			setState(containerId.replace('-list','-empty') || '', 'Aucune compétition', 'empty');
 			return;
 		}
+
+		// decide detail base path depending on current location
+		const base = window.location.pathname.includes('/pages/') ? '' : 'pages/';
 		competitions.forEach(c => {
+			const wrapper = document.createElement('div');
+			wrapper.className = 'mb-3';
+			const a = document.createElement('a');
+			a.href = `${base}competition-detail.html?id=${encodeURIComponent(c.id)}`;
+			a.className = 'block';
+
 			const el = document.createElement('div');
-			el.className = 'mb-3 p-3 rounded-lg border bg-gray-900/40';
+			el.className = 'p-3 rounded-lg border bg-gray-900/40 hover:bg-gray-900/60';
 			el.innerHTML = `<strong>${c.name}</strong><div class="text-sm text-gray-400">${c.country || ''}</div>`;
-			container.appendChild(el);
+			a.appendChild(el);
+			wrapper.appendChild(a);
+			container.appendChild(wrapper);
 		});
+	}
+
+	function renderCompetitionDetail(containerId, competition) {
+		const container = document.getElementById(containerId);
+		if (!container) return;
+		container.innerHTML = '';
+		if (!competition) {
+			setState(containerId.replace('summary','error') || '', 'Compétition introuvable', 'error');
+			return;
+		}
+
+		const el = document.createElement('div');
+		el.className = 'p-4 rounded-lg bg-gray-900/40 border';
+		el.innerHTML = `
+			<h2 class="text-2xl font-bold">${competition.name}</h2>
+			<div class="text-sm text-gray-400">Pays : ${competition.country || '—'}</div>
+			<div class="mt-2 text-sm text-gray-300">Informations générales sur la compétition.</div>
+		`;
+		container.appendChild(el);
 	}
 
 	function renderTeams(containerId, teams = []) {

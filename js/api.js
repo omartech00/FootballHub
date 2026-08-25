@@ -104,6 +104,17 @@
 		return res.ok ? res.data : [];
 	}
 
+	async function getCompetitionMatches(competitionId) {
+		if (API_CONFIG.useMock || !API_CONFIG.apiKey) {
+			await delay(200);
+			// return matches that belong to this competition id
+			return MOCK.matches.filter(m => m.competition && String(m.competition.id) === String(competitionId));
+		}
+		const url = `${API_CONFIG.baseUrl}/fixtures?league=${competitionId}`;
+		const res = await request(url);
+		return res.ok ? res.data : [];
+	}
+
 	window.FootballHubAPI = {
 		API_CONFIG,
 		request,
@@ -111,5 +122,6 @@
 		getCompetitions,
 		getCompetitionStandings,
 		searchTeams
+		,getCompetitionMatches
 	};
 })();
