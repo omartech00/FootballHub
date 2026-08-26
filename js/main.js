@@ -199,7 +199,25 @@
 	}
 
 	function initTeamDetailPage() {
-		// placeholder
+		const params = new URLSearchParams(window.location.search);
+		const id = params.get('id');
+		if (!id) {
+			FootballHubUI.setState('team-recent-error','Identifiant d\'équipe manquant', 'error');
+			return;
+		}
+
+		FootballHubUI.setState('team-recent-loading','Chargement de l\'équipe...', 'loading');
+		FootballHubAPI.searchTeams('').then(teams => {
+			FootballHubUI.clearState('team-recent-loading');
+			const team = (teams || []).find(item => String(item.id) === String(id));
+			if (!team) {
+				FootballHubUI.setState('team-recent-error','Équipe non trouvée', 'error');
+				return;
+			}
+			FootballHubUI.renderTeamDetail('team-summary', team);
+			FootballHubUI.renderTeams('team-recent-list', [team]);
+			FootballHubUI.renderTeams('team-upcoming-list', [team]);
+		}).catch(() => FootballHubUI.setState('team-recent-error','Erreur chargement équipe', 'error'));
 	}
 
 	function bootstrap() {

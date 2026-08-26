@@ -165,12 +165,42 @@
 			setState(containerId.replace('-list','-empty') || '', 'Aucune équipe', 'empty');
 			return;
 		}
+
+		const base = window.location.pathname.includes('/pages/') ? '' : 'pages/';
 		teams.forEach(t => {
+			const wrapper = document.createElement('div');
+			wrapper.className = 'mb-2';
+			const a = document.createElement('a');
+			a.href = `${base}team-detail.html?id=${encodeURIComponent(t.id)}`;
+			a.className = 'block';
 			const el = document.createElement('div');
-			el.className = 'mb-2 p-2 rounded border bg-gray-900/30';
+			el.className = 'p-2 rounded border bg-gray-900/30 hover:bg-gray-900/60';
 			el.textContent = t.name + (t.country ? ' • ' + t.country : '');
-			container.appendChild(el);
+			a.appendChild(el);
+			wrapper.appendChild(a);
+			container.appendChild(wrapper);
 		});
+	}
+
+	function renderTeamDetail(containerId, team) {
+		const container = document.getElementById(containerId);
+		if (!container) return;
+		container.innerHTML = '';
+		if (!team) {
+			setState(containerId.replace('summary','error') || '', 'Équipe introuvable', 'error');
+			return;
+		}
+
+		const el = document.createElement('div');
+		el.className = 'p-4 rounded-lg bg-gray-900/40 border';
+		el.innerHTML = `
+			<div class="flex flex-col gap-2">
+				<h2 class="text-2xl font-bold">${team.name}</h2>
+				<div class="text-sm text-gray-400">Pays : ${team.country || '—'}</div>
+				<div class="text-sm text-gray-300">Informations générales disponibles via l'API ou mock data.</div>
+			</div>
+		`;
+		container.appendChild(el);
 	}
 
 	function renderStandings(containerId, rows = []) {
@@ -202,6 +232,9 @@
 		renderMatches,
 		renderCompetitions,
 		renderStandings,
-		renderTeams
+		renderTeams,
+		renderTeamDetail,
+		renderCompetitionDetail,
+		renderMatchDetail
 	};
 })();
