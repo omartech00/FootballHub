@@ -7,51 +7,91 @@
 
 	const API_CONFIG = {
 		baseUrl: "https://v3.football.api-sports.io",
-		apiKey: "", // add your key here for real requests
+		apiKey: "6f12433079f755ee03b12efa8b668574",
 		timeoutMs: 12000,
-		useMock: true
+		useMock: false
 	};
 
-	// Mock data to work offline / without API key
-	const MOCK = {
-		matches: [
-			{ id: 1, date: '2026-08-25T20:00:00Z', home: { name: 'Olympic City' }, away: { name: 'Rivers United' }, score: { home: 2, away: 1 }, status: 'FT', competition: { id: 101, name: 'Premier Division' } },
-			{ id: 2, date: '2026-08-25T22:00:00Z', home: { name: 'North Stars' }, away: { name: 'South Rovers' }, score: { home: null, away: null }, status: 'NS', competition: { id: 102, name: 'National Cup' } }
-		],
-		competitions: [
-			{ id: 101, name: 'Premier Division', country: 'Country A' },
-			{ id: 102, name: 'National Cup', country: 'Country B' }
-		],
-		teams: [
-			{ id: 201, name: 'Olympic City', country: 'Country A' },
-			{ id: 202, name: 'Rivers United', country: 'Country A' },
-			{ id: 203, name: 'North Stars', country: 'Country B' },
-			{ id: 204, name: 'South Rovers', country: 'Country B' }
-		],
-		standings: {
-			101: [
-				{ position: 1, team: 'Olympic City', played: 10, win: 7, draw: 2, loss: 1, points: 23 },
-				{ position: 2, team: 'Rivers United', played: 10, win: 6, draw: 3, loss: 1, points: 21 }
-			]
-		}
-	};
+	function setApiKey(key, useLiveApi = true) {
+		API_CONFIG.apiKey = key || "";
+		API_CONFIG.useMock = !useLiveApi || !API_CONFIG.apiKey;
+	}
+
+	function normalizeMatch(item) {
+		const fixture = item.fixture || item;
+		const teams = item.teams || {};
+		const goals = item.goals || {};
+		const league = item.league || {};
+		return {
+			id: fixture.id || item.id,
+			date: fixture.date || item.date,
+			home: { name: teams.home?.name || item.home?.name || "" },
+			away: { name: teams.away?.name || item.away?.name || "" },
+			score: {
+				home: goals.home ?? item.score?.home ?? null,
+				away: goals.away ?? item.score?.away ?? null
+			},
+			status: fixture.status?.short || item.status || "NS",
+			competition: {
+				id: league.id || item.competition?.id || null,
+				name: league.name || item.competition?.name || ""
+			}
+		};
+	}
+
+	function normalizeCompetition(item) {
+		const league = item.league || item;
+		return {
+			id: league.id || item.id,
+			name: league.name || item.name,
+			country: league.country?.name || item.country?.name || item.country || ""
+		};
+	}
+
+	function normalizeStandings(response) {
+		const raw = response?.response || response || [];
+		const standings = raw[0]?.league?.standings?.[0] || raw[0]?.standings?.[0] || [];
+		return standings.map((team, index) => ({
+			position: index + 1,
+			team: team.team?.name || team.teamName || "",
+			played: team.all?.played ?? 0,
+			win: team.all?.win ?? 0,
+			draw: team.all?.draw ?? 0,
+			loss: team.all?.lose ?? team.all?.lost ?? 0,
+			points: team.points ?? 0
+		}));
+	}
+
+	function normalizeTeam(item) {
+		const team = item.team || item;
+		return {
+			id: team.id || item.id,
+			name: team.name || item.name,
+			country: team.country?.name || item.country?.name || item.country || ""
+		};
+	}
 
 	function delay(ms) {
 		return new Promise(resolve => setTimeout(resolve, ms));
 	}
 
 	async function request(url, opts = {}) {
-		if (API_CONFIG.useMock || !API_CONFIG.apiKey) {
-			// development mode: use mock
-			await delay(300);
-			return { ok: true, data: null };
+		if (!API_CONFIG.apiKey) {
+			return { ok: false, error: new Error('API key missing') };
 		}
 
-		// Placeholder for real fetch implementation when API key is available
 		const controller = new AbortController();
 		const id = setTimeout(() => controller.abort(), API_CONFIG.timeoutMs);
 		try {
-			const res = await fetch(url, { ...opts, signal: controller.signal, headers: { 'x-apisports-key': API_CONFIG.apiKey } });
+			const res = await fetch(url, {
+				...opts,
+				signal: controller.signal,
+				headers: {
+					'x-apisports-key': API_CONFIG.apiKey,
+					'Accept': 'application/json',
+					...(opts.headers || {})
+				}
+			});
 			clearTimeout(id);
 			if (!res.ok) throw new Error('Network response was not ok');
 			const json = await res.json();
@@ -63,65 +103,49 @@
 	}
 
 	async function getTodayMatches() {
-		if (API_CONFIG.useMock || !API_CONFIG.apiKey) {
-			await delay(200);
-			return MOCK.matches;
-		}
-		const url = `${API_CONFIG.baseUrl}/fixtures?date=${new Date().toISOString().slice(0,10)}`;
+		const date = new Date().toISOString().slice(0, 10);
+		const url = `${API_CONFIG.baseUrl}/fixtures?date=${date}`;
 		const res = await request(url);
-		return res.ok ? res.data : [];
+		const payload = res.ok ? (res.data?.response || []) : [];
+		return payload.map(normalizeMatch);
 	}
 
 	async function getCompetitions() {
-		if (API_CONFIG.useMock || !API_CONFIG.apiKey) {
-			await delay(200);
-			return MOCK.competitions;
-		}
 		const url = `${API_CONFIG.baseUrl}/leagues`;
 		const res = await request(url);
-		return res.ok ? res.data : [];
+		const payload = res.ok ? (res.data?.response || []) : [];
+		return payload.map(normalizeCompetition);
 	}
 
 	async function getCompetitionStandings(competitionId) {
-		if (API_CONFIG.useMock || !API_CONFIG.apiKey) {
-			await delay(200);
-			return MOCK.standings[competitionId] || [];
-		}
 		const url = `${API_CONFIG.baseUrl}/standings?league=${competitionId}`;
 		const res = await request(url);
-		return res.ok ? res.data : [];
+		const payload = res.ok ? (res.data?.response || []) : [];
+		return normalizeStandings(payload);
 	}
 
 	async function searchTeams(query) {
-		if (API_CONFIG.useMock || !API_CONFIG.apiKey) {
-			await delay(150);
-			if (!query) return MOCK.teams;
-			const q = query.toLowerCase();
-			return MOCK.teams.filter(t => t.name.toLowerCase().includes(q));
-		}
-		const url = `${API_CONFIG.baseUrl}/teams?search=${encodeURIComponent(query)}`;
+		const url = `${API_CONFIG.baseUrl}/teams?search=${encodeURIComponent(query || '')}`;
 		const res = await request(url);
-		return res.ok ? res.data : [];
+		const payload = res.ok ? (res.data?.response || []) : [];
+		return payload.map(normalizeTeam);
 	}
 
 	async function getCompetitionMatches(competitionId) {
-		if (API_CONFIG.useMock || !API_CONFIG.apiKey) {
-			await delay(200);
-			// return matches that belong to this competition id
-			return MOCK.matches.filter(m => m.competition && String(m.competition.id) === String(competitionId));
-		}
 		const url = `${API_CONFIG.baseUrl}/fixtures?league=${competitionId}`;
 		const res = await request(url);
-		return res.ok ? res.data : [];
+		const payload = res.ok ? (res.data?.response || []) : [];
+		return payload.map(normalizeMatch);
 	}
 
 	window.FootballHubAPI = {
 		API_CONFIG,
 		request,
+		setApiKey,
 		getTodayMatches,
 		getCompetitions,
 		getCompetitionStandings,
-		searchTeams
-		,getCompetitionMatches
+		searchTeams,
+		getCompetitionMatches
 	};
 })();

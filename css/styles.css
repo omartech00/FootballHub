@@ -113,6 +113,45 @@ section p {
 	color: var(--muted);
 }
 
+#matches-filters,
+#teams-search-controls {
+	margin-top: 0.75rem;
+}
+
+#matches-list,
+#teams-list,
+#competition-matches-list,
+#home-matches-list,
+#home-competitions-list,
+#home-teams-list {
+	display: grid;
+	gap: 0.75rem;
+	margin-top: 1rem;
+}
+
+#standings-table table,
+#standings-table {
+	width: 100%;
+}
+
+#standings-table table {
+	border-collapse: collapse;
+}
+
+#standings-table th,
+#standings-table td {
+	padding: 0.75rem 0.5rem;
+	border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+	text-align: left;
+}
+
+#standings-table th {
+	color: var(--muted);
+	font-size: 0.8rem;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+}
+
 .state-box {
 	padding: 0.9rem 1rem;
 	border: 1px dashed var(--border);
@@ -170,5 +209,14 @@ footer a {
 
 	nav a[href] {
 		display: inline-block;
+	}
+
+	section {
+		padding: 1rem;
+	}
+
+	#standings-table {
+		overflow-x: auto;
+		display: block;
 	}
 }
