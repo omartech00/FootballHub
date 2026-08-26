@@ -53,10 +53,47 @@
 	}
 
 	function initMatchesPage() {
+		const filtersContainerId = 'matches-filters';
+		const listId = 'matches-list';
+		let allMatches = [];
+
+		const applyFilters = () => {
+			const competition = document.getElementById('filter-competition')?.value || 'all';
+			const status = document.getElementById('filter-status')?.value || 'all';
+			const filtered = allMatches.filter(match => {
+				const matchesCompetition = competition === 'all' || (match.competition && String(match.competition.name) === String(competition));
+				const matchesStatus = status === 'all' || String(match.status) === String(status);
+				return matchesCompetition && matchesStatus;
+			});
+			FootballHubUI.renderMatches(listId, filtered);
+		}
+
 		FootballHubUI.setState('matches-loading','Chargement des matchs...', 'loading');
 		FootballHubAPI.getTodayMatches().then(data => {
+			allMatches = data || [];
 			FootballHubUI.clearState('matches-loading');
-			FootballHubUI.renderMatches('matches-list', data);
+			const competitionNames = [...new Set(allMatches
+				.filter(m => m.competition && m.competition.name)
+				.map(m => m.competition.name))];
+			const filters = document.getElementById(filtersContainerId);
+			if (filters) {
+				filters.innerHTML = `
+					<div class="flex flex-wrap gap-3">
+						<select id="filter-competition" class="px-3 py-2 rounded bg-gray-800 text-white">
+							<option value="all">Toutes compétitions</option>
+							${competitionNames.map(name => `<option value="${name}">${name}</option>`).join('')}
+						</select>
+						<select id="filter-status" class="px-3 py-2 rounded bg-gray-800 text-white">
+							<option value="all">Tous statuts</option>
+							<option value="FT">Terminé</option>
+							<option value="NS">À venir</option>
+						</select>
+					</div>
+				`;
+				document.getElementById('filter-competition')?.addEventListener('change', applyFilters);
+				document.getElementById('filter-status')?.addEventListener('change', applyFilters);
+			}
+			applyFilters();
 		}).catch(() => FootballHubUI.setState('matches-error','Erreur chargement matchs', 'error'));
 	}
 
