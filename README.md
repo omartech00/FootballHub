@@ -1,40 +1,43 @@
 # FootballHub
 
-FootballHub est une application web front-end de consultation des matchs, compétitions, classements et équipes de football.
+FootballHub est une application web front-end de consultation des matchs, compétitions, classements et équipes de football connectée directement à l'API **API-Football** (`api-sports.io`).
 
-## Objectif
+## Objectifs du projet
 
 Le projet permet de :
-- consulter les matchs du jour
-- afficher les compétitions disponibles
-- voir un classement d’une compétition
-- rechercher des équipes
-- naviguer entre les pages de détail
+- Consulter en direct les matchs du jour et filtrer par date
+- Afficher les compétitions disponibles et leurs informations
+- Consulter le classement officiel et les matchs d'une compétition
+- Rechercher des équipes et consulter leurs détails (club, stade, effectif)
+- Suivre les matchs récents et prochains matchs d'une équipe
+- Consulter le détail d'un match (score, événements chronologiques : buts, cartons, remplacements, et statistiques)
 
 ## Technologies
 
-- HTML5
-- CSS3
-- JavaScript ES6+
+- HTML5 (balises sémantiques et structure accessible)
+- CSS3 (styles globaux et mise en page responsive)
 - Tailwind CSS via CDN
-- API-Football (en mode mock pendant le développement)
+- JavaScript ES6+ (Fetch API, `async` / `await`, manipulation du DOM)
+- API-Football (v3.football.api-sports.io)
 
 ## Structure du projet
 
-- index.html : page d’accueil
-- pages/ : pages de matchs, compétitions, équipes et détails
-- css/styles.css : styles globaux
-- js/api.js : accès aux données et mock API
-- js/ui.js : fonctions de rendu DOM
-- js/main.js : initialisation des pages
+- `index.html` : page d'accueil (matchs du jour, compétitions en vedette, recherche d'équipes)
+- `pages/` :
+  - `matches.html` : liste des matchs avec sélecteur de date et filtres
+  - `match-detail.html` : feuille de match, événements et statistiques détaillées
+  - `competitions.html` : liste et recherche de compétitions
+  - `competition-detail.html` : classement complet et matchs de la compétition
+  - `teams.html` : recherche d'équipes
+  - `team-detail.html` : informations du club, stade, matchs récents et à venir
+- `css/styles.css` : styles personnalisés et variables de design
+- `js/api.js` : couche d'accès direct à API-Football avec normalisation des données JSON
+- `js/ui.js` : composants et fonctions de rendu DOM réutilisables
+- `js/main.js` : initialisation des pages, routage et gestion des événements
 
 ## Lancement du projet
 
-### Option 1 : ouverture directe
-
-Ouvrir le fichier index.html dans le navigateur.
-
-### Option 2 : serveur local simple
+### Option 1 : Serveur local simple (recommandé)
 
 Dans le terminal, à la racine du projet :
 
@@ -42,47 +45,26 @@ Dans le terminal, à la racine du projet :
 python -m http.server 8000
 ```
 
-Puis ouvrir :
+Puis ouvrir dans votre navigateur :
 
 ```text
 http://localhost:8000
 ```
 
-## Clé API
+### Option 2 : Ouverture directe
 
-La vraie clé API-Football doit être ajoutée à la fin du projet, une fois la base stable.
+Ouvrir directement le fichier `index.html` dans un navigateur moderne.
 
-Dans le fichier [js/api.js](js/api.js), modifier :
+## Configuration de l'API
+
+L'application consomme directement les endpoints de l'API REST API-Football dans [js/api.js](js/api.js) :
 
 ```js
 const API_CONFIG = {
   baseUrl: "https://v3.football.api-sports.io",
-  apiKey: "", // mettre la clé ici
-  timeoutMs: 12000,
-  useMock: true
+  apiKey: "6f12433079f755ee03b12efa8b668574",
+  timeoutMs: 15000,
+  currentSeason: 2024
 };
 ```
 
-Puis passer :
-
-```js
-useMock: false
-```
-
-Il faut éviter de publier la clé dans un dépôt public.
-
-## Remarques
-
-- Le projet fonctionne actuellement en mode mock pour permettre le développement sans dépendre d’une clé API disponible immédiatement.
-- La vraie intégration API doit se faire seulement quand le front est stable et validé.
-- Les données réelles devront ensuite remplacer progressivement les données mockées.
-
-## État actuel
-
-Le projet est fonctionnel en front-end avec :
-- navigation entre les pages
-- affichage des matchs
-- filtres
-- recherche d’équipes
-- détail de compétition et de match
-- gestion des états de chargement, erreur et absence de données
